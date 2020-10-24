@@ -1,0 +1,21 @@
+server:
+  port: ${PORTAL_API_PORT:10030}
+
+calculation.engine:
+  rule-config:
+    carton-price-calculation:
+      min-number-of-cartons-required: 3
+      carton-price-rate: 0.9f
+    single-unite-price-calculation:
+      carton-price-rate: 1.3f
+spring:
+  application:
+    name: ${PORTAL_API_NAME:store-api-server}
+  datasource:
+    url: ${PORTAL_MYSQL_DB_CONNECTION_URL:jdbc:mysql://127.0.0.1:3306/store_db?autoReconnect=true&allowPublicKeyRetrieval=true&useSSL=false}
+    username: ${PORTAL_MYSQL_DB_USER:db_user}
+    password: ${PORTAL_MYSQL_DB_PWD:password_123#}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  main:
+    banner-mode: off
+    web-application-type: reactive

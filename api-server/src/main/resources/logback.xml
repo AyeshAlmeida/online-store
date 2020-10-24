@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ (C) Copyright 2010-2018 hSenid Mobile Solutions (Pvt) Limited.
+  ~ All Rights Reserved.
+  ~
+  ~ These materials are unpublished, proprietary, confidential source code of
+  ~ hSenid Mobile Solutions (Pvt) Limited and constitute a TRADE SECRET
+  ~ of hSenid Mobile Solutions (Pvt) Limited.
+  ~
+  ~ hSenid Mobile Solutions (Pvt) Limited retains all title to and intellectual
+  ~ property rights in these materials.
+  -->
+
+<configuration>
+    <property name="LOG_PATH" value="/hms/logs/store-api-server" />
+
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <target>System.out</target>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>ERROR</level>
+        </filter>
+        <encoder>
+            <pattern>%date{yyyy:MM:dd HH:mm:ss:SSS} %-5level %thread %logger{0} %X{correlationId} %msg %n
+            </pattern>
+        </encoder>
+    </appender>
+
+    <appender name="debug-appender"
+              class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_PATH}/api-server-debug.log</file>
+        <append>true</append>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_PATH}/api-server-debug.%d{yyyy-MM-dd}.log
+            </fileNamePattern>
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%date{yyyy:MM:dd HH:mm:ss:SSS} %-5level %thread %logger{0} %X{correlationId} %msg %n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="info-appender"
+              class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_PATH}/api-server-info.log</file>
+        <append>true</append>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>INFO</level>
+        </filter>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_PATH}/api-server-info.%d{yyyy-MM-dd}.log
+            </fileNamePattern>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%date{yyyy:MM:dd HH:mm:ss:SSS} %-5level %thread %logger{0} %X{correlationId} %msg %n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="error-appender"
+              class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_PATH}/api-server-error.log</file>
+        <append>true</append>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>ERROR</level>
+        </filter>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_PATH}/api-server-error.%d{yyyy-MM-dd}.log
+            </fileNamePattern>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%date{yyyy:MM:dd HH:mm:ss:SSS} %-5level %thread %logger{0} %X{correlationId} %msg %n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="stat-appender"
+              class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_PATH}/api-server-stat.log</file>
+        <append>true</append>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_PATH}/api-server-stat.%d{yyyy-MM-dd}.log
+            </fileNamePattern>
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%date{yyyy:MM:dd HH:mm:ss:SSS} %-5level %thread %logger{0} %X{correlationId} %msg %n</pattern>
+        </encoder>
+    </appender>
+
+    <logger name="org.springframework" level="ERROR" additivity="true">
+        <appender-ref ref="debug-appender"/>
+    </logger>
+
+    <logger name="org.sample" level="DEBUG" additivity="true">
+        <appender-ref ref="debug-appender"/>
+        <appender-ref ref="info-appender"/>
+        <appender-ref ref="error-appender"/>
+    </logger>
+
+    <logger name="stat.log" level="INFO" additivity="true">
+        <appender-ref ref="stat-appender"/>
+    </logger>
+
+    <root level="ERROR">
+        <appender-ref ref="error-appender"/>
+    </root>
+</configuration>

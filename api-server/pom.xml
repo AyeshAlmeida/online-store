@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>online-store</artifactId>
+        <groupId>org.sample.store</groupId>
+        <version>0.0.1-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>api-server</artifactId>
+
+    <properties>
+        <resource.file.location>.</resource.file.location>
+        <resource.concat.dir>target/generated-resources/appassembler/resources</resource.concat.dir>
+        <jsw.assemble.dir>target/generated-resources/appassembler/jsw</jsw.assemble.dir>
+        <appassembler.basedir>target/generated-resources/appassembler/jsw/api-server</appassembler.basedir>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.sample.store</groupId>
+            <artifactId>calculation-engine</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-jdbc</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-webflux</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-params</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>2.4</version>
+                <configuration>
+                    <excludes>
+                        <exclude>*.conf</exclude>
+                        <exclude>*.properties</exclude>
+                        <exclude>*.xml</exclude>
+                        <exclude>*.yml</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>appassembler-maven-plugin</artifactId>
+                <version>1.0</version>
+                <configuration>
+                    <repoPath>lib</repoPath>
+                    <repositoryLayout>flat</repositoryLayout>
+                    <assembleDirectory>${jsw.assemble.dir}</assembleDirectory>
+                    <daemons>
+                        <daemon>
+                            <id>api-server</id>
+                            <mainClass>org.sample.store.ApiServer</mainClass>
+                            <platforms>
+                                <platform>jsw</platform>
+                            </platforms>
+
+                            <jvmSettings>
+                                <extraArguments>
+                                    <extraArgument>-Xms256m</extraArgument>
+                                    <extraArgument>-Xmx256m</extraArgument>
+                                </extraArguments>
+                            </jvmSettings>
+
+
+                            <generatorConfigurations>
+                                <generatorConfiguration>
+                                    <generator>jsw</generator>
+                                    <configuration>
+                                        <property>
+                                            <name>wrapper.java.mainclass</name>
+                                            <value>org.tanukisoftware.wrapper.WrapperSimpleApp</value>
+                                        </property>
+
+                                        <property>
+                                            <name>wrapper.app.parameter.1</name>
+                                            <value>org.sample.store.ApiServer</value>
+                                        </property>
+
+                                        <property>
+                                            <name>configuration.directory.in.classpath.first</name>
+                                            <value>conf</value>
+                                        </property>
+                                        <property>
+                                            <name>set.default.REPO_DIR</name>
+                                            <value>lib</value>
+                                        </property>
+                                        <property>
+                                            <name>wrapper.logfile</name>
+                                            <value>logs/wrapper.log</value>
+                                        </property>
+                                        <property>
+                                            <name>wrapper.startup.timeout</name>
+                                            <value>0</value>
+                                        </property>
+                                        <property>
+                                            <name>wrapper.ping.timeout</name>
+                                            <value>60</value>
+                                        </property>
+                                    </configuration>
+                                    <includes>
+                                        <include>linux-x86-64</include>
+                                    </includes>
+                                </generatorConfiguration>
+                            </generatorConfigurations>
+                        </daemon>
+                    </daemons>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>generate-daemons</goal>
+                            <goal>create-repository</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>1.6</version>
+                <executions>
+                    <execution>
+                        <id>make-log-dir</id>
+                        <phase>package</phase>
+                        <configuration>
+                            <tasks>
+                                <mkdir dir="${appassembler.basedir}/logs" />
+                                <mkdir dir="target/api-server/logs" />
+
+                                <copy todir="target/api-server/bin" overwrite="true">
+                                    <fileset dir="${jsw.assemble.dir}/api-server/bin" />
+                                </copy>
+                                <copy todir="target/api-server/lib" overwrite="true">
+                                    <fileset dir="${jsw.assemble.dir}/lib" />
+                                </copy>
+                                <copy todir="target/api-server/lib" overwrite="true">
+                                    <fileset dir="${jsw.assemble.dir}/api-server/lib" />
+                                </copy>
+                                <copy todir="target/api-server/conf" overwrite="true">
+                                    <fileset dir="${jsw.assemble.dir}/api-server/conf" />
+                                </copy>
+                                <copy todir="target/api-server/conf" overwrite="true">
+                                    <fileset dir="src/main/resources" />
+                                </copy>
+                                <copy todir="target/api-server/conf" overwrite="true">
+                                    <fileset dir="src/main/${resource.file.location}/resources" />
+                                </copy>
+                                <copy todir="${appassembler.basedir}/conf">
+                                    <fileset dir="target/api-server/conf" />
+                                </copy>
+                                <chmod dir="target/api-server/bin" perm="777" includes="**/**" />
+                            </tasks>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>2.1</version>
+                <configuration>
+                    <finalName>${project.artifactId}</finalName>
+                    <descriptors>
+                        <descriptor>src/main/assembly/distribution.xml</descriptor>
+                    </descriptors>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>install</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>

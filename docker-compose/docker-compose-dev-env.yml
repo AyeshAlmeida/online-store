@@ -1,0 +1,43 @@
+version: '3.7'
+
+services:
+  store_db:
+    image: "mysql:8.0.13"
+    networks:
+      store-mesh:
+        aliases:
+          - store-mysql-mesh
+    restart: always
+    ports:
+      - "3307:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: "password"
+      MYSQL_USER: "db_user"
+      MYSQL_PASSWORD: "password_123#"
+      MYSQL_DATABASE: "store_db"
+
+  store_db_migration:
+    image: "boxfuse/flyway:5.2.4"
+    volumes:
+      - ${MYSQL_UPDATE_SCRIPTS_DATA_VOLUME}:/flyway/sql
+    depends_on:
+      - store_db
+    networks:
+      - clacks_mesh
+    command: -connectRetries=20 -schemas=store_db -baselineOnMigrate=true -baselineVersion=1 -url=${PORTAL_MYSQL_DB_CONNECTION_URL} -user=${PORTAL_MYSQL_DB_USER} -password=${PORTAL_MYSQL_DB_PWD} migrate
+
+  store_api_service:
+    image: "store-api-service"
+    ports:
+    - "10030:10030"
+    depends_on:
+      - store_db
+      - store_db_migration
+    restart: always
+    networks:
+      store-mesh:
+        aliases:
+          - store-api-mesh
+
+networks:
+  store-mesh: {}

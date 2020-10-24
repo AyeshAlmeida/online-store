@@ -1,0 +1,9 @@
+FROM adoptopenjdk/openjdk11:jdk-11.0.8_10-alpine-slim
+
+COPY target/api-server/ /app
+RUN chmod 500 /app/bin/*
+WORKDIR /app/bin
+
+CMD ["sh", "api-server", "console"]
+
+EXPOSE 10030
