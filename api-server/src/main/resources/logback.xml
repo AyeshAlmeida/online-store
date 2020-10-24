@@ -12,7 +12,7 @@
   -->
 
 <configuration>
-    <property name="LOG_PATH" value="/hms/logs/store-api-server" />
+    <property name="LOG_PATH" value="/store/logs/api-server" />
 
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <target>System.out</target>
