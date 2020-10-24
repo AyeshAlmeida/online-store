@@ -1,10 +1,9 @@
 package org.sample.store.service.impl;
 
-import org.sample.store.api.ApiResponse;
-import org.sample.store.api.PriceData;
-import org.sample.store.api.PriceDataResponse;
+import org.sample.store.api.*;
 import org.sample.store.calculation.CalculationEngine;
 import org.sample.store.calculation.api.*;
+import org.sample.store.calculation.api.CalculationResponse;
 import org.sample.store.repository.product.Product;
 import org.sample.store.service.CalculationDataRetrievalService;
 import org.slf4j.Logger;
@@ -14,6 +13,8 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -88,7 +89,62 @@ public class CalculationDataRetrievalServiceImpl implements CalculationDataRetri
     }
 
     @Override
-    public Mono<? extends ApiResponse> calculate(float currentAmount, Product product) {
-        return null;
+    public Mono<? extends ApiResponse> calculate(CalculationRequest request, Product product) {
+        LOGGER.info("Executing calculation for request [{}] and product [{}]", request, product);
+        int quantity = retrieveQuantity(request, product);
+
+        ProductCalculationContext productContext = retrieveProductContext(product, quantity);
+
+        CalculationContext context = new CalculationContext(Collections.singletonList(productContext));
+
+        try {
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Dispatching calculation context [{}] for calculation", context);
+            }
+
+            CalculationResponse calculationResponse = calculationEngine.calculate(context);
+
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Retrieved calculation response [{}]", calculationResponse);
+            }
+
+            ProductCalculationResponse productResponse = calculationResponse.getProducts().get(0);
+
+            ProductCalculationData productCalcData = retrieveProductCalculationData(
+                    product,
+                    request.getType(),
+                    request.getQuantity(),
+                    productResponse.getTotalAmount());
+
+            float updatedTotalAmount = request.getCurrentTotal() + productCalcData.getAmount();
+
+            ApiCalculationResponse response = ApiCalculationResponse.success(productCalcData, updatedTotalAmount);
+
+            return Mono.fromCallable(() -> response);
+        } catch (CalculationException calcException) {
+            LOGGER.error("Error occurred while executing calculation context ", calcException);
+            return Mono.error(calcException);
+        }
+    }
+
+    private int retrieveQuantity(CalculationRequest request, Product product) {
+        if (request.getType().equalsIgnoreCase("CARTON")) {
+            return product.getPacksPerCarton() * request.getQuantity();
+        } else {
+            return request.getQuantity();
+        }
+    }
+
+    private ProductCalculationData retrieveProductCalculationData(Product product,
+                                                                  String requestTye,
+                                                                  int requestQuantity,
+                                                                  float amount) {
+        ProductCalculationData data = new ProductCalculationData();
+        data.setId(product.getId());
+        data.setProduct(product.getProductName());
+        data.setType(requestTye);
+        data.setQuantity(requestQuantity);
+        data.setAmount(amount);
+        return data;
     }
 }

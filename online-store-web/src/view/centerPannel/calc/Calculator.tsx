@@ -6,6 +6,8 @@ import CalculatorForm from "./CalculatorForm";
 import CalculatorTable, {Data} from "./CalculatorTable";
 import FormControl from "@material-ui/core/FormControl";
 import Button from "@material-ui/core/Button";
+import {CalculationDataResponse, useCalculation} from "../../../reducers/calc/calculationData";
+import {isSuccess} from "../../../reducers/networkStateReducer";
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -37,9 +39,9 @@ function Calculator() {
         <>
             <Title description={"Price Calculator"}/>
 
-            <CalculatorForm/>
+            <CalculatorForm currentTotal={total}/>
 
-            <CalculatorTable data={tableData}/>
+            <CalculatorTable/>
 
             <div className={classes.root} style={{textAlign: 'center', marginTop: 20, marginBottom: 10}}>
                 <Typography component="p" variant="h5">

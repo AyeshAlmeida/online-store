@@ -1,4 +1,4 @@
-import {get, NetworkState, networkStateReducer, SuccessState} from "../networkStateReducer";
+import {get, NetworkState, networkStateReducer} from "../networkStateReducer";
 import {useDispatch, useSelector} from "react-redux";
 import {RootState} from "../reducers";
 

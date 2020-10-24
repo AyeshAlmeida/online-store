@@ -25,6 +25,12 @@ public class UIRoutes {
     }
 
     @Bean
+    public RouterFunction<ServerResponse> productsRoute() {
+        return RouterFunctions.route(RequestPredicates.GET("/api-server/v1/products"),
+                requestHandler::products);
+    }
+
+    @Bean
     public RouterFunction<ServerResponse> calculationRoute() {
         return RouterFunctions.route(RequestPredicates.POST("/api-server/v1/prices/calculate"),
                 requestHandler::calculatePrice);
