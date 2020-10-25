@@ -1,16 +1,9 @@
-import React, {useState} from 'react';
-import {makeStyles} from "@material-ui/core/styles";
+import React from 'react';
 import Table from "@material-ui/core/Table";
 import TableBody from "@material-ui/core/TableBody";
 import TableRow from "@material-ui/core/TableRow";
 import TableCell from "@material-ui/core/TableCell";
 import TableHead from "@material-ui/core/TableHead";
-import {
-    CalculationData,
-    CalculationDataResponse,
-    useCalculation
-} from "../../../reducers/calc/calculationData";
-import {isInit, isPending, isSuccess} from "../../../reducers/networkStateReducer";
 
 export interface Data {
     id: number,
@@ -24,24 +17,7 @@ export interface CalculatorTableProps {
     data: Array<Data>
 }
 
-const createData = (data: CalculationData): Data => {
-    return {
-        id: data.id,
-        product: data.product,
-        type: data.type,
-        quantity: data.quantity,
-        amount: data.amount
-    }
-};
-
-function CalculatorTable() {
-    const [data, setData] = useState<Data[]>([]);
-    const [calculationData, doCalculation] = useCalculation();
-
-    if (isSuccess(calculationData) && calculationData.data) {
-        setData([...data, createData(calculationData.data.productDetails)]);
-    }
-
+function CalculatorTable({data}: CalculatorTableProps) {
     return (
         <>
             <Table stickyHeader={true} aria-label="sticky table" style={{marginTop: 12, marginBottom: 12}}>
@@ -54,7 +30,7 @@ function CalculatorTable() {
                     </TableRow>
                 </TableHead>
                 <TableBody>
-                    {data.slice(0, 2).map((row) => {
+                    {data.map((row) => {
                         return (
                             <TableRow hover role="checkbox" tabIndex={-1} key={row.id}>
                                 <TableCell align={"left"}>
@@ -67,7 +43,7 @@ function CalculatorTable() {
                                     {row.quantity}
                                 </TableCell>
                                 <TableCell align={"right"}>
-                                    {row.amount}
+                                    {row.amount.toFixed(2)}
                                 </TableCell>
                             </TableRow>
                         );

@@ -30,7 +30,9 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 export interface CalculatorFormProps {
-    currentTotal: number
+    currentTotal: number,
+    currentCartState: boolean,
+    updateCartState: (state: boolean) => void
 }
 
 interface CalculatorFormState {
@@ -40,7 +42,7 @@ interface CalculatorFormState {
     currentTotal: number
 }
 
-function CalculatorForm({currentTotal}: CalculatorFormProps) {
+function CalculatorForm({currentTotal, currentCartState, updateCartState}: CalculatorFormProps) {
     const classes = useStyles();
     const [productData, fetchProductData] = useProductData();
     const [calculationData, doCalculation] = useCalculation();
@@ -127,7 +129,9 @@ function CalculatorForm({currentTotal}: CalculatorFormProps) {
                         <AddShoppingCartIcon
                             onClick={() => {
                                 if (state.quantity > 0) {
-                                    doCalculation(1, "CARTON", 10, 0)
+                                    console.log("Updated state ["+JSON.stringify(state)+"]");
+                                    doCalculation(state.productId, state.type, state.quantity, state.currentTotal);
+                                    updateCartState(!currentCartState);
                                 }
                             }}
                         />

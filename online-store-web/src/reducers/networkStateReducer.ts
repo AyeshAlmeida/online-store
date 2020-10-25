@@ -4,6 +4,16 @@ export interface NetworkAction<T> extends Action {
 
 }
 
+export interface NetworkInitAction<T> extends NetworkAction<T> {
+    readonly type: string
+}
+
+export function init<Req, Resp>(domain: string): NetworkInitAction<Resp> {
+    return {
+        type: `${domain}_INIT`
+    }
+}
+
 export interface NetworkPendingAction<T> extends NetworkAction<T> {
     readonly type: string,
     readonly payload: {
@@ -75,6 +85,10 @@ export interface NetworkSuccessAction<T> extends NetworkAction<T> {
 
 function isSuccessAction<T>(action: NetworkAction<T>, domain: string): action is NetworkSuccessAction<T> {
     return action.type === `${domain}_SUCCESS`
+}
+
+function isInitAction<T>(action: NetworkAction<T>, domain: string): action is NetworkInitAction<T> {
+    return action.type === `${domain}_INIT`
 }
 
 export interface CurrentStateFailAction<T> extends NetworkAction<T> {
@@ -152,6 +166,9 @@ export function networkStateReducer<T>(domain: string): Reducer<NetworkState<T>,
                 error: action.error.data
             };
             return newState
+        } else if (isInitAction(action, domain)) {
+            let newState: NetworkState<T> = initState<T>();
+            return newState;
         }
 
         return state
